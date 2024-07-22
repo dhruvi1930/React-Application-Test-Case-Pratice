@@ -20,6 +20,8 @@ function App() {
   return (
     <div className="App">
       <h1>Weather App</h1>
+      <input placeholder="Enter City" />
+      <button>Search</button>
     </div>
   );
 }
