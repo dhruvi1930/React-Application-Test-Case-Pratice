@@ -1,24 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect } from "react";
+import "./App.css";
 
 function App() {
+  useEffect(() => {
+    const fetchWeather = async () => {
+      const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
+
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=surat&appid=${apiKey}`
+      );
+
+      const data = await response.json();
+      console.log(data);
+    };
+
+    fetchWeather();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Weather App</h1>
     </div>
   );
 }
