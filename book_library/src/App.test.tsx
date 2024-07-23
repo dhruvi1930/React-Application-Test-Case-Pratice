@@ -101,5 +101,6 @@ test("submit button is enabled when all input fields have text", async () => {
   expect(buttonElement).toBeEnabled(); // Enabled after typing
 
   await userEvent.click(buttonElement);
+
   expect(buttonElement).toBeDisabled(); // Disabled again after clearing
 });

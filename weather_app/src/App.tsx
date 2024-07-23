@@ -10,28 +10,41 @@ interface Weather {
 function App() {
   const [city, setCity] = useState<string>("");
   const [weather, setWeather] = useState<Weather | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fahrenheitToCelsius = useCallback((temp: number) => {
+  const kelvinToCelsius = useCallback((temp: number) => {
     return temp - 273.15;
   }, []);
 
   const handleFetchData = useCallback(async () => {
     const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
+    setLoading(true);
+    setError(null);
 
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
-    );
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
+      );
+      if (!response.ok) {
+        throw new Error("City not found");
+      }
+      const data = await response.json();
+      const tempInCelsius: number = kelvinToCelsius(data.main.temp);
 
-    const data = await response.json();
-    const tempInCelsius: number = fahrenheitToCelsius(data.main.temp);
-
-    setWeather({
-      temp: tempInCelsius,
-      speed: data.wind.speed,
-      humidity: data.main.humidity,
-    });
-    setCity("");
-  }, [city, fahrenheitToCelsius]);
+      setWeather({
+        temp: tempInCelsius,
+        speed: data.wind.speed,
+        humidity: data.main.humidity,
+      });
+    } catch (err: any) {
+      setError(err.message);
+      setWeather(null);
+    } finally {
+      setLoading(false);
+      setCity("");
+    }
+  }, [city, kelvinToCelsius]);
 
   return (
     <div className="App">
@@ -41,9 +54,12 @@ function App() {
         value={city}
         onChange={(event) => setCity(event.target.value)}
       />
-      <button onClick={handleFetchData}>Search</button>
+      <button onClick={handleFetchData} disabled={loading}>
+        {loading ? "Loading..." : "Search"}
+      </button>
+      {error && <p>{error}</p>}
       {weather && (
-        <div>
+        <div id="weather-data">
           <p>Weather: {weather.temp.toFixed(2)}</p>
           <p>Speed: {weather.speed}</p>
           <p>Humidity: {weather.humidity}</p>
